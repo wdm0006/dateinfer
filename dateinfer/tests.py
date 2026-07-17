@@ -57,6 +57,19 @@ class TestAmbiguousDateCases(unittest.TestCase):
                       ['%d/%m/%Y', '%m/%d/%Y'])
 
 
+class TestAlternativeRules(unittest.TestCase):
+    def testDefaultRulesAreUsedWhenAlternativeRulesAreOmitted(self):
+        self.assertEqual('%m/%d/%y', infer(['12/12/12']))
+
+    def testEmptyAlternativeRulesApplyNoRewrites(self):
+        self.assertEqual('%m/%m/%m', infer(['12/12/12'], alt_rules=[]))
+
+    def testAlternativeRulesReplaceDefaultRules(self):
+        rules = [ruleproc.If(ruleproc.Contains(MonthNum), ruleproc.Swap(MonthNum, Year4))]
+
+        self.assertEqual('%Y/%m/%m', infer(['12/12/12'], alt_rules=rules))
+
+
 class TestMode(unittest.TestCase):
     def testMode(self):
         self.assertEqual(5, _mode([1, 3, 4, 5, 6, 5, 2, 5, 3]))

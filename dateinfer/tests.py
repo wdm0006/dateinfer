@@ -135,6 +135,32 @@ class TestRuleElements(unittest.TestCase):
         next3 = ruleproc.Next(Filler, Year4)
         self.assertFalse(next3.is_true(elem_list))
 
+    def testNextAdjacent(self):
+        # Directly adjacent matching elements satisfy Next
+        elem_list = [DayOfMonth(), MonthNum()]
+        self.assertTrue(ruleproc.Next(DayOfMonth, MonthNum).is_true(elem_list))
+
+    def testNextFillerSeparated(self):
+        # Matching elements separated only by Filler instances satisfy Next
+        elem_list = [DayOfMonth(), Filler('/'), Filler(' '), MonthNum()]
+        self.assertTrue(ruleproc.Next(DayOfMonth, MonthNum).is_true(elem_list))
+
+    def testNextNonFillerBetween(self):
+        # A non-filler between the matches makes Next false, including immediately
+        # before the right endpoint
+        elem_list = [DayOfMonth(), Year4(), MonthNum()]
+        self.assertFalse(ruleproc.Next(DayOfMonth, MonthNum).is_true(elem_list))
+
+    def testNextOrderIndependent(self):
+        # Endpoints are matched in either direction
+        elem_list = [MonthNum(), Filler('/'), DayOfMonth()]
+        self.assertTrue(ruleproc.Next(DayOfMonth, MonthNum).is_true(elem_list))
+        self.assertTrue(ruleproc.Next(MonthNum, DayOfMonth).is_true(elem_list))
+
+        non_filler = [MonthNum(), Year4(), DayOfMonth()]
+        self.assertFalse(ruleproc.Next(DayOfMonth, MonthNum).is_true(non_filler))
+        self.assertFalse(ruleproc.Next(MonthNum, DayOfMonth).is_true(non_filler))
+
 
 class TestTagMostLikely(unittest.TestCase):
     def testTagMostLikely(self):

@@ -116,8 +116,8 @@ class Next(ConditionClause):
             for b_position in b_positions:
                 left = min(a_position, b_position)
                 right = max(a_position, b_position)
-                between = elem_list[left + 1:right - 1]
-                if len(between) == 0 or all([type(e) is Filler] for e in between):
+                between = elem_list[left + 1:right]
+                if len(between) == 0 or all(type(e) is Filler for e in between):
                     return True
         return False
 

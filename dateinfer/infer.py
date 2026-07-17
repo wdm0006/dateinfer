@@ -90,10 +90,8 @@ def infer(examples, alt_rules=None):
     """
     date_classes = _tag_most_likely(examples)
 
-    if alt_rules:
-        date_classes = _apply_rewrites(date_classes, alt_rules)
-    else:
-        date_classes = _apply_rewrites(date_classes, RULES)
+    rules = RULES if alt_rules is None else alt_rules
+    date_classes = _apply_rewrites(date_classes, rules)
 
     date_string = ''
     for date_class in date_classes:

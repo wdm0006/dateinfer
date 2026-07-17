@@ -111,6 +111,22 @@ class TestRuleElements(unittest.TestCase):
                      Filler(' '), Timezone, Filler(' '), Year4]
         self.assertEqual(3, t([Hour24, Filler(':')], elem_list))
 
+    def testSequenceWithOverlappingStart(self):
+        elem_list = [MonthNum(), MonthNum(), Filler('/')]
+        sequence = ruleproc.Sequence(MonthNum, Filler('/'))
+
+        self.assertTrue(sequence.is_true(elem_list))
+        self.assertEqual(1, ruleproc.Sequence.find(sequence.sequence, elem_list))
+
+    def testSequenceWildcardsAndNoMatch(self):
+        elem_list = [MonthNum(), Filler('/'), Year4()]
+
+        self.assertTrue(ruleproc.Sequence('.', '\\D', '\\d').is_true(elem_list))
+        self.assertEqual(0, ruleproc.Sequence.find(['.', '\\D', '\\d'], elem_list))
+        self.assertFalse(ruleproc.Sequence(DayOfMonth, Year4).is_true(elem_list))
+        with self.assertRaises(LookupError):
+            ruleproc.Sequence.find([DayOfMonth, Year4], elem_list)
+
     def testMatch(self):
         t = ruleproc.Sequence.match
 

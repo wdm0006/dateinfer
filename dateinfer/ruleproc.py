@@ -135,16 +135,7 @@ class Sequence(ConditionClause):
         self.sequence = sequence
 
     def is_true(self, elem_list):
-        seq_pos = 0  # if we find every element in sequence (pos == length(self.sequence), then a match is found
-
-        for elem in elem_list:
-            if self.match(elem, self.sequence[seq_pos]):
-                seq_pos += 1
-                if seq_pos == len(self.sequence):
-                    return True
-            else:
-                seq_pos = 0  # reset if we exit sequence
-        return False
+        return self._find(self.sequence, elem_list) is not None
 
     @staticmethod
     def match(elem, seq_expr):
@@ -164,18 +155,21 @@ class Sequence(ConditionClause):
             return elem == seq_expr
 
     @staticmethod
+    def _find(find_seq, elem_list):
+        for start_pos in range(len(elem_list) - len(find_seq) + 1):
+            if all(Sequence.match(elem, expr)
+                   for elem, expr in zip(elem_list[start_pos:start_pos + len(find_seq)], find_seq)):
+                return start_pos
+        return None
+
+    @staticmethod
     def find(find_seq, elem_list):
         """
         Return the first position in elem_list where find_seq starts
         """
-        seq_pos = 0
-        for index, elem in enumerate(elem_list):
-            if Sequence.match(elem, find_seq[seq_pos]):
-                seq_pos += 1
-                if seq_pos == len(find_seq):  # found matching sequence
-                    return index - seq_pos + 1
-            else:  # exited sequence
-                seq_pos = 0
+        start_pos = Sequence._find(find_seq, elem_list)
+        if start_pos is not None:
+            return start_pos
         raise LookupError('Failed to find sequence in elem_list')
 
 

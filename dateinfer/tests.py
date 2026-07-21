@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 from dateinfer.date_elements import *
 from dateinfer.infer import infer, _mode, _most_restrictive, _tag_most_likely, _percent_match, _tokenize_by_character_class
 import dateinfer.ruleproc as ruleproc
@@ -68,6 +69,21 @@ class TestAlternativeRules(unittest.TestCase):
         rules = [ruleproc.If(ruleproc.Contains(MonthNum), ruleproc.Swap(MonthNum, Year4))]
 
         self.assertEqual('%Y/%m/%m', infer(['12/12/12'], alt_rules=rules))
+
+
+class TestUTCOffsets(unittest.TestCase):
+    def testColonDelimitedOffsetsParseWithInferredFormat(self):
+        examples = ['2024-01-13T23:10:55+04:00', '2025-11-27T16:45:30-05:30']
+
+        for example in examples:
+            inferred = infer([example])
+            self.assertEqual('%Y-%m-%dT%H:%M:%S%z', inferred)
+            datetime.strptime(example, inferred)
+
+    def testCompactOffsetsRemainSupported(self):
+        examples = ['2014-01-11T12:21:05+0400', '2015-02-16T16:05:31-0400']
+
+        self.assertEqual('%Y-%m-%dT%H:%M:%S%z', infer(examples))
 
 
 class TestMode(unittest.TestCase):

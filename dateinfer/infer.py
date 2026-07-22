@@ -93,8 +93,12 @@ RULES = [
 def infer(examples, alt_rules=None):
     """
     Returns a datetime.strptime-compliant format string for parsing the *most likely* date format
-    used in examples. examples is a list containing example date strings.
+    used in examples. examples is a list containing example date strings. It must contain at least
+    one example; a ValueError is raised for an empty collection.
     """
+    if len(examples) == 0:
+        raise ValueError('infer requires at least one example date string, but received an empty collection')
+
     date_classes = _tag_most_likely(examples)
 
     rules = RULES if alt_rules is None else alt_rules

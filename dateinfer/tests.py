@@ -98,6 +98,16 @@ class TestPercentMatch(unittest.TestCase):
 
 
 class TestRuleElements(unittest.TestCase):
+    def testDateElementHashMatchesEquality(self):
+        first = MonthNum()
+        second = MonthNum()
+
+        self.assertEqual(first, second)
+        self.assertIsInstance(hash(first), int)
+        self.assertEqual(hash(first), hash(second))
+        self.assertEqual(1, len({first, second}))
+        self.assertEqual('month', {first: 'month'}[second])
+
     def testFind(self):
         elem_list = [Filler(' '), DayOfMonth(), Filler('/'), MonthNum(), Hour24(), Year4()]
         t = ruleproc.Sequence.find
@@ -138,6 +148,13 @@ class TestRuleElements(unittest.TestCase):
         self.assertFalse(t(Hour12(), Hour24))
         self.assertFalse(t(Hour12, Hour24()))
         self.assertFalse(t(Hour12(), Hour24()))
+
+    def testWeekdayWildcards(self):
+        t = ruleproc.Sequence.match
+
+        for weekday in (WeekdayLong(), WeekdayShort()):
+            self.assertTrue(t(weekday, '\\D'))
+            self.assertFalse(t(weekday, '\\d'))
 
     def testNext(self):
         elem_list = [Filler(' '), DayOfMonth(), Filler('/'), MonthNum(), Hour24(), Year4()]

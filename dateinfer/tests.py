@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+import dateinfer
 from dateinfer.date_elements import *
 from dateinfer.infer import infer, _mode, _most_restrictive, _tag_most_likely, _percent_match, _tokenize_by_character_class
 import dateinfer.ruleproc as ruleproc
@@ -69,6 +70,15 @@ class TestAlternativeRules(unittest.TestCase):
         rules = [ruleproc.If(ruleproc.Contains(MonthNum), ruleproc.Swap(MonthNum, Year4))]
 
         self.assertEqual('%Y/%m/%m', infer(['12/12/12'], alt_rules=rules))
+
+
+class TestEmptyExamples(unittest.TestCase):
+    def testEmptyListRaisesValueError(self):
+        with self.assertRaises(ValueError):
+            dateinfer.infer([])
+
+    def testEmptyStringExampleStillInfers(self):
+        self.assertEqual('', dateinfer.infer(['']))
 
 
 class TestUTCOffsets(unittest.TestCase):

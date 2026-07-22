@@ -96,7 +96,7 @@ def infer(examples, alt_rules=None):
     used in examples. examples is a list containing example date strings. It must contain at least
     one example; a ValueError is raised for an empty collection.
     """
-    if len(examples) == 0:
+    if not examples:
         raise ValueError('infer requires at least one example date string, but received an empty collection')
 
     date_classes = _tag_most_likely(examples)

@@ -109,3 +109,10 @@ examples:
   - 2014-01-11T12:21:05+0000
   - 2015-02-16T16:05:31-0400
 ...
+---
+name: UTC with colon-delimited offset
+format: "%Y-%m-%dT%H:%M:%S%z"
+examples:
+  - !!str 2024-01-13T23:10:55+04:00
+  - !!str 2025-11-27T16:45:30-05:30
+...

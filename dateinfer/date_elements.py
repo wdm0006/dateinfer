@@ -21,7 +21,7 @@ class DateElement(object):
         return self.directive == other.directive
 
     def __hash__(self):
-        return self.directive.__hash__
+        return hash(self.directive)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -251,6 +251,10 @@ class WeekdayLong(DateElement):
     @staticmethod
     def is_match(token):
         return token in calendar.day_name
+
+    @staticmethod
+    def is_numerical():
+        return False
 
 
 class WeekdayShort(DateElement):

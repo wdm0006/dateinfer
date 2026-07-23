@@ -82,18 +82,35 @@ class TestEmptyExamples(unittest.TestCase):
 
 
 class TestUTCOffsets(unittest.TestCase):
+    def assertExamplesParseWithInferredFormat(self, examples, expected):
+        inferred = infer(examples)
+        self.assertEqual(expected, inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
     def testColonDelimitedOffsetsParseWithInferredFormat(self):
         examples = ['2024-01-13T23:10:55+04:00', '2025-11-27T16:45:30-05:30']
 
-        for example in examples:
-            inferred = infer([example])
-            self.assertEqual('%Y-%m-%dT%H:%M:%S%z', inferred)
-            datetime.strptime(example, inferred)
+        self.assertExamplesParseWithInferredFormat(examples, '%Y-%m-%dT%H:%M:%S%z')
 
     def testCompactOffsetsRemainSupported(self):
         examples = ['2014-01-11T12:21:05+0400', '2015-02-16T16:05:31-0400']
 
-        self.assertEqual('%Y-%m-%dT%H:%M:%S%z', infer(examples))
+        self.assertExamplesParseWithInferredFormat(examples, '%Y-%m-%dT%H:%M:%S%z')
+
+    def testCompactZeroOffsetsParseWithInferredFormat(self):
+        cases = [
+            (['2014-01-11T12:21:05+0000', '2015-02-16T16:05:31+0000'],
+             '%Y-%m-%dT%H:%M:%S%z'),
+            (['2014-01-11T12:21:05-0000', '2015-02-16T16:05:31-0000'],
+             '%Y-%m-%dT%H:%M:%S%z'),
+            (['Mon, 13 Jan 2014 09:52:52 +0000', 'Tue, 21 Jan 2014 15:30:00 +0000'],
+             '%a, %d %b %Y %H:%M:%S %z'),
+        ]
+
+        for examples, expected in cases:
+            with self.subTest(examples=examples):
+                self.assertExamplesParseWithInferredFormat(examples, expected)
 
 
 class TestYearFirstDates(unittest.TestCase):

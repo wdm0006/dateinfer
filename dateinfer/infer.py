@@ -32,6 +32,15 @@ DATE_ELEMENTS = (AMPM(),
 
 F = Filler  # short-hand to clarify rules
 RULES = [
+    If(Sequence(Year4, F('-'), r'\d', F('-'), r'\d'),
+       SwapSequence([Year4, F('-'), r'\d', F('-'), r'\d'],
+                    [Year4, F('-'), MonthNum, F('-'), DayOfMonth])),
+    If(Sequence(Year4, F('/'), r'\d', F('/'), r'\d'),
+       SwapSequence([Year4, F('/'), r'\d', F('/'), r'\d'],
+                    [Year4, F('/'), MonthNum, F('/'), DayOfMonth])),
+    If(Sequence(Year4, F('.'), r'\d', F('.'), r'\d'),
+       SwapSequence([Year4, F('.'), r'\d', F('.'), r'\d'],
+                    [Year4, F('.'), MonthNum, F('.'), DayOfMonth])),
     #modified to support mm/dd/yyyy (preference to month over DayofMonth: current pip version gives dd/mm/yyyy
     If(Sequence(MonthNum, F('/'), '\d', F('/'), Year4),
        SwapSequence([MonthNum, F('/'), '\d', F('/'), Year4], [MonthNum, F('/'), DayOfMonth, F('/'), Year4])),

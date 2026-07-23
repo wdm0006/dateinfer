@@ -7,9 +7,25 @@ name: ISO 8601 (date only)
 format: "%Y-%m-%d"
 examples:
   - !!str 2014-01-11
-  - !!str 2014-11-01
+  - !!str 2014-02-05
   - !!str 1990-05-05
-  - !!str 2013-12-13
+  - !!str 2013-03-04
+...
+---
+name: Year First (YYYY/MM/DD)
+format: "%Y/%m/%d"
+examples:
+  - 2014/01/11
+  - 2014/02/05
+  - 2013/03/04
+...
+---
+name: Year First (YYYY.MM.DD)
+format: "%Y.%m.%d"
+examples:
+  - 2014.01.11
+  - 2014.02.05
+  - 2013.03.04
 ...
 ---
 name: RFC-822 (date only)

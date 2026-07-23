@@ -96,6 +96,11 @@ class TestUTCOffsets(unittest.TestCase):
         self.assertEqual('%Y-%m-%dT%H:%M:%S%z', infer(examples))
 
 
+class TestYearFirstDates(unittest.TestCase):
+    def testIsoDatetimeHourIsNotRewrittenAsDay(self):
+        self.assertEqual('%Y-%m-%dT%I:%M:%S', infer(['2014-01-11T12:21:05']))
+
+
 class TestMode(unittest.TestCase):
     def testMode(self):
         self.assertEqual(5, _mode([1, 3, 4, 5, 6, 5, 2, 5, 3]))

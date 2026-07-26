@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Sync environment from project metadata
+        run: uv sync --locked --python ${{ matrix.python-version }}
+      - name: Run test suite
+        run: uv run --python ${{ matrix.python-version }} python -m unittest dateinfer.tests -v
+
+  build:
+    name: build wheel and sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Build distributions
+        run: uv build
+      - name: Show artifact contents
+        run: |
+          ls -l dist
+          unzip -l dist/*.whl
+          tar tzf dist/*.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+
+  install-check:
+    name: install ${{ matrix.artifact }} into a clean environment
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: [wheel, sdist]
+    steps:
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: ${{ runner.temp }}/dist
+      # Runs outside any checkout of the repository, so the import under test can
+      # only resolve to the installed distribution.
+      - name: Install and exercise the built artifact
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.artifact }}" = "wheel" ]; then
+            target=$(ls dist/*.whl)
+          else
+            target=$(ls dist/*.tar.gz)
+          fi
+          echo "Installing $target"
+          uv venv --python 3.12 clean-env
+          uv pip install --python ./clean-env/bin/python "$target"
+          ./clean-env/bin/python - <<'PY'
+          import os
+          import dateinfer
+
+          print('imported from', os.path.dirname(dateinfer.__file__))
+          fmt = dateinfer.infer(['Mon Jan 13 09:52:52 MST 2014',
+                                 'Tue Jan 21 15:30:00 EST 2014'])
+          assert fmt == '%a %b %d %H:%M:%S %Z %Y', fmt
+          fmt = dateinfer.infer(['2013-08-14', '2014-01-02'])
+          assert fmt == '%Y-%m-%d', fmt
+          print('ok', fmt)
+          PY

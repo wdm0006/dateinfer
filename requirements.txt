@@ -1,3 +1,0 @@
-PyYAML==3.10
-argparse==1.2.1
-pytz==2013.9

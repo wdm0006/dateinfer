@@ -1,3 +1,4 @@
+import os
 import unittest
 from datetime import datetime
 import dateinfer
@@ -5,6 +6,8 @@ from dateinfer.date_elements import *
 from dateinfer.infer import infer, _mode, _most_restrictive, _tag_most_likely, _percent_match, _tokenize_by_character_class
 import dateinfer.ruleproc as ruleproc
 import yaml
+
+EXAMPLES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'examples.yaml')
 
 
 def load_tests(loader, standard_tests, ignored):
@@ -14,7 +17,7 @@ def load_tests(loader, standard_tests, ignored):
     suite = unittest.TestSuite()
     suite.addTests(standard_tests)
 
-    with open('examples.yaml', 'r') as f:
+    with open(EXAMPLES_PATH, 'r') as f:
         examples = yaml.safe_load_all(f)
         for example in examples:
             suite.addTest(test_case_for_example(example))

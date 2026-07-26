@@ -3,7 +3,7 @@ pydateinfer
 
 Python library to infer date format from examples.  This is an actively
  maintained fork of the original [dateinfer](https://github.com/jeffreystarr/dateinfer)
- library by Jeffery Starr.  It maintains python 2/3 compatibility and is
+ library by Jeffery Starr.  It supports Python 3.10 and newer and is
  released on PyPI as [pydateinfer](https://pypi.org/project/pydateinfer/).  Pull
  requests and issues welcome.
 
@@ -19,6 +19,7 @@ Table of Contents
 * [Installation](#installation)
 * [Usage](#usage)
 * [Comparison with pandas](#pandas)
+* [Development](#development)
 
 <a name="problem-statement"></a>Problem Statement
 -------------------------------------------------
@@ -83,5 +84,20 @@ The two differ in a couple of ways worth knowing:
 
 If you are only inferring the format of individual strings and already use
 pandas, prefer the built-in.
+
+<a name="development"></a>Development
+------------------------------------
+
+The project is managed with [uv](https://docs.astral.sh/uv/); `pyproject.toml`
+is the single source of package metadata. From the repository root:
+
+````
+$ uv sync            # create the environment from pyproject.toml/uv.lock
+$ uv run python -m unittest dateinfer.tests -v
+$ uv build           # wheel + sdist into dist/
+````
+
+The runtime dependency is `pytz`; `PyYAML` is only needed to run the test
+suite and lives in the `dev` dependency group.
 
 

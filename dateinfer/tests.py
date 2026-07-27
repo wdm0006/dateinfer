@@ -116,6 +116,59 @@ class TestUTCOffsets(unittest.TestCase):
                 self.assertExamplesParseWithInferredFormat(examples, expected)
 
 
+class TestTextualMonthDayOfMonth(unittest.TestCase):
+    """
+    TestCase for days of month in the 13..23 range, which are matched by Hour24 as well as DayOfMonth and
+    so are tagged as an hour before the rewrite rules repair them.
+    """
+    def testMonthTextShortFirst(self):
+        examples = ['Jan 13, 2014', 'Feb 21, 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%b %d, %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testMonthTextLongFirst(self):
+        examples = ['January 13, 2014', 'February 21, 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%B %d, %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testDayFirst(self):
+        examples = ['13 Jan 2014', '21 Feb 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%d %b %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testDayLongMonthFirst(self):
+        examples = ['13 January 2014', '21 February 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%d %B %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testHourFollowingTextualMonthIsNotRewrittenAsDay(self):
+        # the hour is not adjacent to the month, so it keeps %H (note: %Z with MST does not round-trip
+        # through strptime, so only the format is asserted here)
+        examples = ['Mon Jan 13 09:52:52 MST 2014', 'Tue Jan 21 15:30:00 EST 2014']
+
+        self.assertEqual('%a %b %d %H:%M:%S %Z %Y', infer(examples))
+
+    def testHourFollowingTextualMonthWithoutWeekday(self):
+        examples = ['Jan 13 09:52:52 2014', 'Feb 21 15:30:00 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%b %d %H:%M:%S %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+
 class TestYearFirstDates(unittest.TestCase):
     def testIsoDatetimeHourIsNotRewrittenAsDay(self):
         self.assertEqual('%Y-%m-%dT%I:%M:%S', infer(['2014-01-11T12:21:05']))

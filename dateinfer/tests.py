@@ -174,6 +174,48 @@ class TestYearFirstDates(unittest.TestCase):
         self.assertEqual('%Y-%m-%dT%I:%M:%S', infer(['2014-01-11T12:21:05']))
 
 
+class TestCompactDates(unittest.TestCase):
+    """
+    TestCase for eight-digit year-first dates, which the tokenizer keeps as a single token and so are only
+    recognized by CompactDate.
+    """
+    def testCompactDatesParseWithInferredFormat(self):
+        examples = ['20130814', '20140102', '20151231']
+        inferred = infer(examples)
+
+        self.assertEqual('%Y%m%d', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testLeapDayIsRecognized(self):
+        self.assertEqual('%Y%m%d', infer(['20120229', '20160229']))
+
+    def testValidCompactDatesMatch(self):
+        for token in ['20130814', '20140102', '20120229', '00010101', '99991231']:
+            with self.subTest(token=token):
+                self.assertTrue(CompactDate.is_match(token))
+
+    def testImpossibleCompactDatesDoNotMatch(self):
+        for token in ['20131340',  # month 13, day 40
+                      '20130229',  # 2013 is not a leap year
+                      '20130800',  # day 0
+                      '20130000',  # month and day 0
+                      '00000101']:  # year 0 is outside datetime's range
+            with self.subTest(token=token):
+                self.assertFalse(CompactDate.is_match(token))
+
+    def testMalformedTokensDoNotMatch(self):
+        for token in ['2013081',  # seven digits
+                      '201308145',  # nine digits
+                      '2013-08-14', '2013 814', '+2013081', 'Jan 2013', '']:
+            with self.subTest(token=token):
+                self.assertFalse(CompactDate.is_match(token))
+
+    def testUnrecognizableEightDigitTokensAreNotTaggedAsDates(self):
+        # a column of impossible dates is still filler-tagged rather than forced into %Y%m%d
+        self.assertNotEqual('%Y%m%d', infer(['20131340', '20141302']))
+
+
 class TestMode(unittest.TestCase):
     def testMode(self):
         self.assertEqual(5, _mode([1, 3, 4, 5, 6, 5, 2, 5, 3]))

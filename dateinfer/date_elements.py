@@ -1,6 +1,8 @@
 import calendar
 import pytz
 import re
+# aliased with a leading underscore so `from date_elements import *` cannot shadow a caller's datetime
+import datetime as _datetime
 
 
 __author__ = 'jeffrey.starr@ztoztechnologies.com'
@@ -51,6 +53,26 @@ class AMPM(DateElement):
     @staticmethod
     def is_numerical():
         return False
+
+
+class CompactDate(DateElement):
+    """A whole calendar date written as eight year-first digits, e.g. 20130814"""
+
+    directive = '%Y%m%d'
+
+    @staticmethod
+    def is_match(token):
+        if len(token) != 8:
+            return False
+        try:
+            _datetime.datetime.strptime(token, '%Y%m%d')
+        except ValueError:
+            return False
+        return True
+
+    @staticmethod
+    def is_numerical():
+        return True
 
 
 class DayOfMonth(DateElement):

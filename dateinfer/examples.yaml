@@ -132,3 +132,17 @@ examples:
   - !!str 2024-01-13T23:10:55+04:00
   - !!str 2025-11-27T16:45:30-05:30
 ...
+---
+name: ISO 8601 with milliseconds
+format: "%Y-%m-%dT%H:%M:%S.%f"
+examples:
+  - !!str 2014-01-11T13:21:05.123
+  - !!str 2015-02-16T16:05:31.456
+...
+---
+name: ISO 8601 with microseconds
+format: "%Y-%m-%dT%H:%M:%S.%f"
+examples:
+  - !!str 2014-01-11T13:21:05.123456
+  - !!str 2015-02-16T16:05:31.654321
+...

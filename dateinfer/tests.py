@@ -216,6 +216,80 @@ class TestCompactDates(unittest.TestCase):
         self.assertNotEqual('%Y%m%d', infer(['20131340', '20141302']))
 
 
+class TestFractionalSeconds(unittest.TestCase):
+    """
+    TestCase for fractional seconds, where a digit run is a fraction of a second only by virtue of
+    following a seconds field and a decimal point.
+    """
+    CORPUS_NAMES = ('ISO 8601 with milliseconds', 'ISO 8601 with microseconds')
+
+    def assertExamplesParseWithInferredFormat(self, examples, expected):
+        inferred = infer(examples)
+        self.assertEqual(expected, inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testMicrosecondsParseWithInferredFormat(self):
+        examples = ['2013-08-14T10:30:00.123456', '2014-01-02T11:31:01.654321']
+
+        self.assertExamplesParseWithInferredFormat(examples, '%Y-%m-%dT%I:%M:%S.%f')
+
+    def testMillisecondsWithSpaceSeparatorParseWithInferredFormat(self):
+        examples = ['2013-08-14 10:30:00.123', '2014-01-02 11:31:01.654']
+
+        self.assertExamplesParseWithInferredFormat(examples, '%Y-%m-%d %I:%M:%S.%f')
+
+    def testCorpusExamplesParseWithInferredFormat(self):
+        with open(EXAMPLES_PATH, 'r') as f:
+            documents = [d for d in yaml.safe_load_all(f) if d['name'] in self.CORPUS_NAMES]
+
+        self.assertEqual(len(self.CORPUS_NAMES), len(documents))
+        for document in documents:
+            with self.subTest(name=document['name']):
+                self.assertExamplesParseWithInferredFormat(document['examples'], document['format'])
+
+    def testEveryFractionWidthIsRecognized(self):
+        # %f accepts one to six digits; widths the tagger cannot claim are retagged by rule
+        for fractions in [('5', '7'), ('12', '34'), ('123', '456'), ('1234', '5678'),
+                          ('12345', '65432'), ('123456', '654321')]:
+            examples = ['2013-08-14T10:30:00.{0}'.format(fractions[0]),
+                        '2014-01-02T11:31:01.{0}'.format(fractions[1])]
+            with self.subTest(fractions=fractions):
+                self.assertExamplesParseWithInferredFormat(examples, '%Y-%m-%dT%I:%M:%S.%f')
+
+    def testFractionFollowingTwentyFourHourTimeIsRecognized(self):
+        examples = ['Mon Jan 13 09:52:52.250 2014', 'Tue Jan 21 15:30:00.500 2013']
+        inferred = infer(examples)
+
+        self.assertEqual('%a %b %d %H:%M:%S.%f %Y', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testDottedDateWithoutTimeIsUnaffected(self):
+        # a dotted date has no seconds field, so its digit runs are not fractional seconds
+        self.assertEqual('%d.%m.%y', infer(['31.12.91', '4.4.87', '13.2.8']))
+        self.assertEqual('%d.%m.%Y', infer(['31.12.1991', '4.4.1987', '13.2.2008']))
+
+    def testMicrosecondIsNumerical(self):
+        self.assertTrue(Microsecond.is_numerical())
+
+    def testUnclaimedDigitWidthsMatch(self):
+        for token in ['123', '000', '999', '12345', '123456', '000001']:
+            with self.subTest(token=token):
+                self.assertTrue(Microsecond.is_match(token))
+
+    def testWidthsClaimedByOtherElementsDoNotMatch(self):
+        # a one-, two- or four-digit run is already tagged as a number by Minute, Year2 or Year4
+        for token in ['1', '12', '1234', '1234567']:
+            with self.subTest(token=token):
+                self.assertFalse(Microsecond.is_match(token))
+
+    def testNonDigitTokensDoNotMatch(self):
+        for token in ['12a', '1.5', '+123', ' 123', '', '١٢٣', '１２３']:
+            with self.subTest(token=token):
+                self.assertFalse(Microsecond.is_match(token))
+
+
 class TestMode(unittest.TestCase):
     def testMode(self):
         self.assertEqual(5, _mode([1, 3, 4, 5, 6, 5, 2, 5, 3]))

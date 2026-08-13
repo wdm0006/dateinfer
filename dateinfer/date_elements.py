@@ -188,7 +188,7 @@ class MonthTextLong(DateElement):
 
     @staticmethod
     def is_match(token):
-        return token in calendar.month_name
+        return bool(token) and token in calendar.month_name
 
     @staticmethod
     def is_numerical():
@@ -204,7 +204,7 @@ class MonthTextShort(DateElement):
 
     @staticmethod
     def is_match(token):
-        return token in calendar.month_abbr
+        return bool(token) and token in calendar.month_abbr
 
     @staticmethod
     def is_numerical():

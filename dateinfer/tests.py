@@ -84,6 +84,16 @@ class TestEmptyExamples(unittest.TestCase):
         self.assertEqual('', dateinfer.infer(['']))
 
 
+class TestTextualMonthRecognizers(unittest.TestCase):
+    def testEmptyTokenDoesNotMatch(self):
+        self.assertFalse(MonthTextShort.is_match(''))
+        self.assertFalse(MonthTextLong.is_match(''))
+
+    def testValidMonthNamesMatch(self):
+        self.assertTrue(MonthTextShort.is_match('Jan'))
+        self.assertTrue(MonthTextLong.is_match('January'))
+
+
 class TestUTCOffsets(unittest.TestCase):
     def assertExamplesParseWithInferredFormat(self, examples, expected):
         inferred = infer(examples)

@@ -217,9 +217,20 @@ class TestCompactDates(unittest.TestCase):
 
 
 class TestMode(unittest.TestCase):
-    def testMode(self):
+    def testUniqueMode(self):
         self.assertEqual(5, _mode([1, 3, 4, 5, 6, 5, 2, 5, 3]))
-        self.assertEqual(2, _mode([1, 2, 2, 3, 3]))  # with ties, pick least value
+
+    def testEmptyListReturnsNone(self):
+        self.assertIsNone(_mode([]))
+
+    def testTiesReturnLeastValueRegardlessOfInputOrder(self):
+        self.assertEqual(1, _mode([2, 2, 1, 1]))
+        self.assertEqual(1, _mode([1, 1, 2, 2]))
+
+    def testInferIsOrderIndependentWhenTokenLengthsTie(self):
+        examples = ['12/31/1999 10:00:00', '11/11/1911']
+
+        self.assertEqual(infer(examples), infer(list(reversed(examples))))
 
 
 class TestMostRestrictive(unittest.TestCase):

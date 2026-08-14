@@ -169,9 +169,8 @@ def _mode(elems):
     c = collections.Counter()
     c.update(elems)
 
-    most_common = c.most_common(1)
-    most_common.sort()
-    return most_common[0][0]  # most_common[0] is a tuple of key and count; no need for the count
+    highest_count = max(c.values())
+    return min(key for key, count in c.items() if count == highest_count)
 
 
 def _most_restrictive(date_elems):

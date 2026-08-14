@@ -144,6 +144,26 @@ class Hour24(DateElement):
         return True
 
 
+class Microsecond(DateElement):
+    """A fractional-second digit run, e.g. the 123456 of 10:30:00.123456
+
+    strptime's %f accepts one to six digits, but this matches only the widths no other element
+    claims (3, 5 and 6). A run of 1, 2 or 4 digits is always matched by Minute, Year2 or Year4, so
+    it is tagged as a number and retagged by rule; matching it here as well would out-score those
+    length-strict elements on a column of mixed-width tokens.
+    """
+
+    directive = '%f'
+
+    @staticmethod
+    def is_match(token):
+        return bool(re.match(r'^([0-9]{3}|[0-9]{5,6})$', token))
+
+    @staticmethod
+    def is_numerical():
+        return True
+
+
 class Minute(DateElement):
     """00 .. 59"""
     directive = '%M'

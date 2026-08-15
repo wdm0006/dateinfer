@@ -145,9 +145,9 @@ class Sequence(ConditionClause):
         if type(seq_expr) is str:  # wild-card
             if seq_expr == '.':  # match any element
                 return True
-            elif seq_expr == '\d':
+            elif seq_expr == r'\d':
                 return elem.is_numerical()
-            elif seq_expr == '\D':
+            elif seq_expr == r'\D':
                 return not elem.is_numerical()
             else:  # invalid wild-card specified
                 raise LookupError('{0} is not a valid wild-card'.format(seq_expr))

@@ -61,6 +61,17 @@ class And(ConditionClause):
         return True
 
 
+class Not(ConditionClause):
+    """
+    Returns true if the wrapped condition is false.
+    """
+    def __init__(self, clause):
+        self.clause = clause
+
+    def is_true(self, elem_list):
+        return not self.clause.is_true(elem_list)
+
+
 class Contains(ConditionClause):
     """
     Returns true if all requirements are found in the input

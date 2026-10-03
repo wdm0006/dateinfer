@@ -9,6 +9,44 @@ import yaml
 
 EXAMPLES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'examples.yaml')
 
+TIMEZONE_DEPENDENT = {
+    # %Z accepts MST/EST only when they are local timezone names.
+    'en_US.UTF-8',
+    'Non-24 Hour en_US.UTF-8',
+    'Non-24 Hour, no seconds en_US.UTF-8',
+}
+KNOWN_UNPARSEABLE = TIMEZONE_DEPENDENT | {
+    # The example 13.2.8 has a one-digit year; %y requires two digits.
+    'German (Traditional, Short) dd.mm.yy',
+}
+
+
+class TestCorpusRoundTrip(unittest.TestCase):
+    def testExamplesParseWithInferredFormat(self):
+        with open(EXAMPLES_PATH, 'r') as f:
+            documents = list(yaml.safe_load_all(f))
+        names = {document['name'] for document in documents}
+        self.assertFalse(KNOWN_UNPARSEABLE - names, 'Unknown corpus exclusions')
+
+        for document in documents:
+            name = document['name']
+            if name in TIMEZONE_DEPENDENT:
+                continue
+            with self.subTest(name=name):
+                examples = document['examples']
+                inferred = infer(examples)
+                failures = []
+                for example in examples:
+                    try:
+                        datetime.strptime(example, inferred)
+                    except Exception as error:
+                        failures.append('{0!r} under {1!r}: {2}: {3}'.format(
+                            example, inferred, type(error).__name__, error))
+                if name in KNOWN_UNPARSEABLE:
+                    self.assertTrue(failures, 'Corpus now round-trips; remove its exclusion')
+                else:
+                    self.assertFalse(failures, '\n'.join(failures))
+
 
 def load_tests(loader, standard_tests, ignored):
     """

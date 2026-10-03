@@ -105,6 +105,11 @@ RULES = [
     ),
     If(Contains(MonthNum, MonthTextLong), Swap(MonthNum, DayOfMonth)),
     If(Contains(MonthNum, MonthTextShort), Swap(MonthNum, DayOfMonth)),
+    # a two-digit year <= 23 beside a textual month ties with Hour24; Minute marks a real time of day
+    If(And(Sequence(Hour24, '.', MonthTextShort, '.', Hour24), Not(Contains(Minute))),
+       SwapSequence([Hour24, '.', MonthTextShort, '.', Hour24], [DayOfMonth, KeepOriginal, KeepOriginal, KeepOriginal, Year2])),
+    If(And(Sequence(Hour24, '.', MonthTextLong, '.', Hour24), Not(Contains(Minute))),
+       SwapSequence([Hour24, '.', MonthTextLong, '.', Hour24], [DayOfMonth, KeepOriginal, KeepOriginal, KeepOriginal, Year2])),
     # an hour-looking slot immediately beside a textual month is a day of month (e.g. "Jan 13, 2014")
     If(Sequence(MonthTextShort, '.', Hour12),
        SwapSequence([MonthTextShort, '.', Hour12], [KeepOriginal, KeepOriginal, DayOfMonth])),
@@ -122,6 +127,10 @@ RULES = [
        SwapSequence([Hour12, '.', MonthTextLong], [DayOfMonth, KeepOriginal, KeepOriginal])),
     If(Sequence(Hour24, '.', MonthTextLong),
        SwapSequence([Hour24, '.', MonthTextLong], [DayOfMonth, KeepOriginal, KeepOriginal])),
+    If(And(Sequence(MonthTextShort, '.', DayOfMonth, '.', Hour24), Not(Contains(Minute))),
+       SwapSequence([MonthTextShort, '.', DayOfMonth, '.', Hour24], [KeepOriginal, KeepOriginal, KeepOriginal, KeepOriginal, Year2])),
+    If(And(Sequence(MonthTextLong, '.', DayOfMonth, '.', Hour24), Not(Contains(Minute))),
+       SwapSequence([MonthTextLong, '.', DayOfMonth, '.', Hour24], [KeepOriginal, KeepOriginal, KeepOriginal, KeepOriginal, Year2])),
     If(Sequence(MonthNum, '.', Hour12), SwapSequence([MonthNum, '.', Hour12], [MonthNum, KeepOriginal, DayOfMonth])),
     If(Sequence(MonthNum, '.', Hour24), SwapSequence([MonthNum, '.', Hour24], [MonthNum, KeepOriginal, DayOfMonth])),
     If(Sequence(Hour12, '.', MonthNum), SwapSequence([Hour24, '.', MonthNum], [DayOfMonth, KeepOriginal, MonthNum])),

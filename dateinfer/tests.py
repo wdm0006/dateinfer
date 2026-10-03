@@ -179,6 +179,45 @@ class TestTextualMonthDayOfMonth(unittest.TestCase):
             datetime.strptime(example, inferred)
 
 
+class TestNotClause(unittest.TestCase):
+    def testTrueWhenWrappedClauseIsFalse(self):
+        self.assertTrue(ruleproc.Not(ruleproc.Contains(Minute)).is_true([Hour24(), Filler(':'), Second()]))
+
+    def testFalseWhenWrappedClauseIsTrue(self):
+        self.assertFalse(ruleproc.Not(ruleproc.Contains(Minute)).is_true([Hour24(), Filler(':'), Minute()]))
+
+
+class TestTextualMonthYear2(unittest.TestCase):
+    """
+    A two-digit year <= 23 beside a textual month ties with Hour24 and DayOfMonth in the tagger.
+    """
+    def assertInfers(self, examples, expected):
+        inferred = infer(examples)
+
+        self.assertEqual(expected, inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testMonthFirstShort(self):
+        self.assertInfers(['Jan-11-14', 'Feb-16-15'], '%b-%d-%y')
+
+    def testMonthFirstLong(self):
+        self.assertInfers(['January-11-14', 'February-16-15'], '%B-%d-%y')
+
+    def testDayFirstShort(self):
+        self.assertInfers(['11 Jan 14', '16 Feb 15'], '%d %b %y')
+
+    def testDayFirstLong(self):
+        self.assertInfers(['11 January 14', '16 February 15'], '%d %B %y')
+
+    def testHighYearsStillWork(self):
+        self.assertInfers(['Jan-11-94', 'Feb-16-85'], '%b-%d-%y')
+
+    def testRealTimeOfDayKeepsHour(self):
+        # the Minute produced by the H:M:S rules keeps the guard off a genuine time slot
+        self.assertEqual('%b %d %H:%M:%S', infer(['Jan 13 09:52:52', 'Feb 21 15:30:00']))
+
+
 class TestYearFirstDates(unittest.TestCase):
     def testIsoDatetimeHourIsNotRewrittenAsDay(self):
         self.assertEqual('%Y-%m-%dT%I:%M:%S', infer(['2014-01-11T12:21:05']))

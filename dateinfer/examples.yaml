@@ -146,3 +146,17 @@ examples:
   - !!str 2014-01-11T13:21:05.123456
   - !!str 2015-02-16T16:05:31.654321
 ...
+---
+name: Month-first short textual month with two-digit year
+format: "%b-%d-%y"
+examples:
+  - Jan-11-14
+  - Feb-16-15
+...
+---
+name: Day-first short textual month with two-digit year
+format: "%d %b %y"
+examples:
+  - 11 Jan 14
+  - 16 Feb 15
+...

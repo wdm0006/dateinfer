@@ -160,3 +160,24 @@ examples:
   - 11 Jan 14
   - 16 Feb 15
 ...
+---
+name: Year First with trailing time (no seconds)
+format: "%Y-%m-%d %H:%M"
+examples:
+  - !!str 2014-01-11 12:21
+  - !!str 2015-02-16 16:05
+...
+---
+name: ISO 8601 with trailing time (no seconds)
+format: "%Y-%m-%dT%H:%M"
+examples:
+  - !!str 2014-01-11T12:21
+  - !!str 2015-02-16T16:05
+...
+---
+name: US Traditional with trailing time (no seconds)
+format: "%m/%d/%Y %H:%M"
+examples:
+  - !!str 12/31/1999 23:21
+  - !!str 01/02/2000 05:13
+...

@@ -62,9 +62,9 @@ RULES = [
        SwapSequence([MonthNum, F(':'), r'\d', F(':'), r'\d'], [Hour12, F(':'), Minute, F(':'), Second])),
     If(Sequence(Hour24, F(':'), r'\d', F(':'), r'\d'),
        SwapSequence([Hour24, F(':'), r'\d', F(':'), r'\d'], [Hour24, F(':'), Minute, F(':'), Second])),
-    If(Sequence(MonthNum, F(':'), r'\d', r'\D'),
+    If(Sequence(MonthNum, F(':'), r'\d'),
        SwapSequence([MonthNum, F(':'), '.'], [Hour12, F(':'), Minute])),
-    If(Sequence(Hour24, F(':'), r'\d', r'\D'),
+    If(Sequence(Hour24, F(':'), r'\d'),
        SwapSequence([Hour24, F(':'), r'\d'], [Hour24, F(':'), Minute])),
     # a digit run following a seconds field and a decimal point is a fractional second
     If(Sequence(Second, F('.'), r'\d'),

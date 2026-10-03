@@ -132,6 +132,33 @@ class TestTextualMonthRecognizers(unittest.TestCase):
         self.assertTrue(MonthTextLong.is_match('January'))
 
 
+class TestTrailingTimes(unittest.TestCase):
+    def assertExamplesParseWithInferredFormat(self, examples, expected):
+        inferred = infer(examples)
+        self.assertEqual(expected, inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def test24HourTimeWithoutSeconds(self):
+        self.assertExamplesParseWithInferredFormat(['12:21', '16:05'], '%H:%M')
+
+    def test12HourTimeWithoutSeconds(self):
+        self.assertExamplesParseWithInferredFormat(['1:21', '4:05'], '%I:%M')
+
+    def testDateWithTrailingTimeWithoutSeconds(self):
+        cases = [
+            (['2014-01-11 12:21', '2015-02-16 16:05'], '%Y-%m-%d %H:%M'),
+            (['2014-01-11T12:21', '2015-02-16T16:05'], '%Y-%m-%dT%H:%M'),
+            (['12/31/1999 23:21', '01/02/2000 05:13'], '%m/%d/%Y %H:%M'),
+        ]
+        for examples, expected in cases:
+            with self.subTest(expected=expected):
+                self.assertExamplesParseWithInferredFormat(examples, expected)
+
+    def testTimeWithSecondsRemainsSupported(self):
+        self.assertExamplesParseWithInferredFormat(['12:21:05', '16:05:31'], '%H:%M:%S')
+
+
 class TestUTCOffsets(unittest.TestCase):
     def assertExamplesParseWithInferredFormat(self, examples, expected):
         inferred = infer(examples)

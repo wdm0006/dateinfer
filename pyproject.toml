@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydateinfer"
-version = "0.3.0"
+version = "0.4.0"
 description = "Infers date format from examples"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -40,4 +40,4 @@ dev = ["pyyaml>=6"]
 packages = ["dateinfer"]
 
 [tool.hatch.build.targets.sdist]
-include = ["dateinfer", "docs", "README.md", "LICENSE"]
+include = ["dateinfer", "docs", "CHANGELOG.md", "README.md", "LICENSE"]

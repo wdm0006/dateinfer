@@ -132,6 +132,52 @@ class TestTextualMonthRecognizers(unittest.TestCase):
         self.assertTrue(MonthTextLong.is_match('January'))
 
 
+class TestCaseVariants(unittest.TestCase):
+    CASES = [
+        (MonthTextShort, ['Jan', 'jan', 'JAN', 'jAn'], ['Janu', 'Foo', '']),
+        (MonthTextLong, ['January', 'january', 'JANUARY', 'jAnUaRy'], ['Janu', 'Foo', '']),
+        (WeekdayShort, ['Mon', 'mon', 'MON', 'mOn'], ['Mo', 'Foo', '']),
+        (WeekdayLong, ['Monday', 'monday', 'MONDAY', 'mOnDaY'], ['Mond', 'Foo', '']),
+        (AMPM, ['AM', 'am', 'Am', 'aM', 'PM', 'pm', 'Pm', 'pM'], ['A', 'XM', '']),
+    ]
+
+    def testRecognizers(self):
+        for element, good, bad in self.CASES:
+            for token in good:
+                self.assertTrue(element.is_match(token), (element, token))
+            for token in bad:
+                self.assertFalse(element.is_match(token), (element, token))
+
+    def assertInfersAndParses(self, examples, fmt):
+        self.assertEqual(fmt, infer(examples))
+        return [datetime.strptime(e, fmt) for e in examples]
+
+    def testShortMonth(self):
+        a, b = self.assertInfersAndParses(['jan 13 2014', 'feb 21 2015'], '%b %d %Y')
+        self.assertEqual((2014, 1, 13), (a.year, a.month, a.day))
+        self.assertEqual((2015, 2, 21), (b.year, b.month, b.day))
+
+    def testLongMonth(self):
+        a, b = self.assertInfersAndParses(['JANUARY 13 2014', 'FEBRUARY 21 2015'], '%B %d %Y')
+        self.assertEqual((2014, 1, 13), (a.year, a.month, a.day))
+        self.assertEqual((2015, 2, 21), (b.year, b.month, b.day))
+
+    def testShortWeekday(self):
+        a, b = self.assertInfersAndParses(['mon 2014-01-13', 'tue 2014-01-21'], '%a %Y-%m-%d')
+        self.assertEqual((2014, 1, 13), (a.year, a.month, a.day))
+        self.assertEqual((2014, 1, 21), (b.year, b.month, b.day))
+
+    def testLongWeekday(self):
+        a, b = self.assertInfersAndParses(['MONDAY 2014-01-13', 'TUESDAY 2014-01-21'], '%A %Y-%m-%d')
+        self.assertEqual((2014, 1, 13), (a.year, a.month, a.day))
+        self.assertEqual((2014, 1, 21), (b.year, b.month, b.day))
+
+    def testMeridiem(self):
+        a, b = self.assertInfersAndParses(['01:30 Am', '02:45 Pm'], '%I:%M %p')
+        self.assertEqual((1, 30), (a.hour, a.minute))
+        self.assertEqual((14, 45), (b.hour, b.minute))
+
+
 class TestTrailingTimes(unittest.TestCase):
     def assertExamplesParseWithInferredFormat(self, examples, expected):
         inferred = infer(examples)

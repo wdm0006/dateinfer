@@ -48,7 +48,7 @@ class AMPM(DateElement):
 
     @staticmethod
     def is_match(token):
-        return token in ('AM', 'PM', 'am', 'pm')
+        return token.lower() in ('am', 'pm')
 
     @staticmethod
     def is_numerical():
@@ -208,7 +208,7 @@ class MonthTextLong(DateElement):
 
     @staticmethod
     def is_match(token):
-        return bool(token) and token in calendar.month_name
+        return bool(token) and token.lower() in [v.lower() for v in calendar.month_name]
 
     @staticmethod
     def is_numerical():
@@ -224,7 +224,7 @@ class MonthTextShort(DateElement):
 
     @staticmethod
     def is_match(token):
-        return bool(token) and token in calendar.month_abbr
+        return bool(token) and token.lower() in [v.lower() for v in calendar.month_abbr]
 
     @staticmethod
     def is_numerical():
@@ -292,7 +292,7 @@ class WeekdayLong(DateElement):
 
     @staticmethod
     def is_match(token):
-        return token in calendar.day_name
+        return token.lower() in [v.lower() for v in calendar.day_name]
 
     @staticmethod
     def is_numerical():
@@ -308,7 +308,7 @@ class WeekdayShort(DateElement):
 
     @staticmethod
     def is_match(token):
-        return token in calendar.day_abbr
+        return token.lower() in [v.lower() for v in calendar.day_abbr]
 
     @staticmethod
     def is_numerical():

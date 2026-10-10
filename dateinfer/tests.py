@@ -329,6 +329,40 @@ class TestTextualMonthYear2(unittest.TestCase):
         self.assertEqual('%b %d %H:%M:%S', infer(['Jan 13 09:52:52', 'Feb 21 15:30:00']))
 
 
+class TestTextualMonthTwoDigitYear(unittest.TestCase):
+    """
+    Two-digit years 13-31 and 61-99 beside a textual month infer %y; 24-31 match only DayOfMonth.
+    """
+    ORDERS = [
+        ('%b-%d-%y', 'Jan-11-{y}', 'Feb-16-{y}'),
+        ('%d %b %y', '11 Jan {y}', '16 Feb {y}'),
+        ('%b %d %y', 'Jan 5 {y}', 'Feb 6 {y}'),
+        ('%B-%d-%y', 'January-11-{y}', 'February-16-{y}'),
+        ('%d %B %y', '11 January {y}', '16 February {y}'),
+    ]
+
+    def testYearBoundaries(self):
+        for year in (13, 23, 24, 25, 28, 31, 61, 85, 99):
+            y = '%02d' % year
+            for expected, first, second in self.ORDERS:
+                with self.subTest(year=y, expected=expected):
+                    examples = [first.format(y=y), second.format(y=y)]
+                    inferred = infer(examples)
+                    self.assertEqual(expected, inferred)
+                    for example in examples:
+                        datetime.strptime(example, inferred)
+
+    def testMixedYearsAcrossBoundary(self):
+        self.assertEqual('%b-%d-%y', infer(["Jan-11-23", "Feb-16-24", "Mar-02-31", "Apr-03-61"]))
+
+    def testGenuineDayColumnIsUnchanged(self):
+        self.assertEqual('%b %d, %Y', infer(['Jan 24, 2014', 'Feb 25, 2013']))
+        self.assertEqual('%d %b %Y', infer(['24 Jan 2014', '25 Feb 2013']))
+
+    def testRealTimeOfDayIsUnchanged(self):
+        self.assertEqual('%b %d %H:%M:%S', infer(['Jan 24 09:52:52', 'Feb 25 15:30:00']))
+
+
 class TestYearFirstDates(unittest.TestCase):
     def testIsoDatetimeHourIsNotRewrittenAsDay(self):
         self.assertEqual('%Y-%m-%dT%I:%M:%S', infer(['2014-01-11T12:21:05']))

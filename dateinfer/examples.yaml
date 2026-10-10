@@ -188,3 +188,24 @@ examples:
   - !!str 20140111132105
   - !!str 20150216160502
 ...
+---
+name: Textual month, day, two-digit year (24-31)
+format: "%b-%d-%y"
+examples:
+  - Jan-11-24
+  - Feb-16-25
+...
+---
+name: Day, textual month, two-digit year (24-31)
+format: "%d %b %y"
+examples:
+  - 11 Jan 27
+  - 16 Feb 28
+...
+---
+name: Textual month, unpadded day, two-digit year (24-31)
+format: "%b %d %y"
+examples:
+  - Jan 5 31
+  - Feb 6 30
+...

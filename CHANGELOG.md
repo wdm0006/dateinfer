@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Infer compact 14-digit timestamps such as `20140111132105` as `%Y%m%d%H%M%S`.
+
 ## 0.4.0 - 2026-08-25
 
 ### Added

@@ -376,6 +376,49 @@ class TestCompactDates(unittest.TestCase):
         self.assertNotEqual('%Y%m%d', infer(['20131340', '20141302']))
 
 
+class TestCompactDateTimes(unittest.TestCase):
+    """TestCase for fourteen-digit year-first timestamps, recognized only by CompactDateTime."""
+    def testCompactDateTimesParseWithInferredFormat(self):
+        examples = ['20140111132105', '20150216160502']
+        inferred = infer(examples)
+
+        self.assertEqual('%Y%m%d%H%M%S', inferred)
+        for example in examples:
+            datetime.strptime(example, inferred)
+
+    def testValidCompactDateTimesMatch(self):
+        for token in ['20140111132105', '20120229235959', '20130814000000']:
+            with self.subTest(token=token):
+                self.assertTrue(CompactDateTime.is_match(token))
+
+    def testImpossibleCompactDateTimesDoNotMatch(self):
+        for token in ['20141311132105',  # month 13
+                      '20140111252105',  # hour 25
+                      '20140111136005',  # minute 60
+                      '20130229132105',  # not a leap year
+                      '2014011113210\u0665',  # Arabic-Indic digit
+                      '\u0662\u0660140111132105']:  # Arabic-Indic digits
+            with self.subTest(token=token):
+                self.assertFalse(CompactDateTime.is_match(token))
+
+    def testMalformedTokensDoNotMatch(self):
+        for token in ['2014011113210',  # thirteen digits
+                      '201401111321055',  # fifteen digits
+                      '+2014011113210', '2014-01-11 13:21', '']:
+            with self.subTest(token=token):
+                self.assertFalse(CompactDateTime.is_match(token))
+
+    def testMajorityOfValidRowsKeepsFormat(self):
+        # majority fit: one valid row of two still reaches the 0.5 threshold
+        self.assertEqual('%Y%m%d%H%M%S', infer(['20141311132105', '20140111132105']))
+
+    def testColumnOfImpossibleTimestampsIsNotTagged(self):
+        self.assertNotEqual('%Y%m%d%H%M%S', infer(['20141311132105', '20140111252105']))
+
+    def testEightDigitDatesStillCompactDate(self):
+        self.assertEqual('%Y%m%d', infer(['20130814', '20140102']))
+
+
 class TestFractionalSeconds(unittest.TestCase):
     """
     TestCase for fractional seconds, where a digit run is a fraction of a second only by virtue of

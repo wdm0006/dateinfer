@@ -181,3 +181,10 @@ examples:
   - !!str 12/31/1999 23:21
   - !!str 01/02/2000 05:13
 ...
+---
+name: Compact timestamp
+format: "%Y%m%d%H%M%S"
+examples:
+  - !!str 20140111132105
+  - !!str 20150216160502
+...

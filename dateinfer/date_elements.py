@@ -75,6 +75,26 @@ class CompactDate(DateElement):
         return True
 
 
+class CompactDateTime(DateElement):
+    """A whole timestamp written as fourteen year-first digits, e.g. 20140111132105"""
+
+    directive = '%Y%m%d%H%M%S'
+
+    @staticmethod
+    def is_match(token):
+        if len(token) != 14 or not token.isascii():
+            return False
+        try:
+            _datetime.datetime.strptime(token, '%Y%m%d%H%M%S')
+        except ValueError:
+            return False
+        return True
+
+    @staticmethod
+    def is_numerical():
+        return True
+
+
 class DayOfMonth(DateElement):
     """1 .. 31"""
 

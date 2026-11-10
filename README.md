@@ -60,6 +60,16 @@ import dateinfer
 Give `dateinfer.infer` a list of example date strings. `infer` returns a `datetime.strftime`/`strptime`-compliant
 date format string for its "best guess" of a format string that will correctly parse the majority of the examples.
 
+Month names, weekday names, and AM/PM markers are matched case-insensitively.
+Compact year-first timestamps containing 14 digits are also recognized:
+
+````Python
+>>> dateinfer.infer(['20140111132105', '20150216160502'])
+'%Y%m%d%H%M%S'
+>>> dateinfer.infer(['Jan-11-24', 'Feb-16-31'])
+'%b-%d-%y'
+````
+
 <a name="pandas"></a>Comparison with pandas
 ------------------------------------------
 

@@ -1,10 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 - 2026-11-10
 
 ### Added
 
 - Infer compact 14-digit timestamps such as `20140111132105` as `%Y%m%d%H%M%S`.
+
+### Fixed
+
+- Recognize month names, weekday names, and AM/PM markers regardless of case.
+- Infer two-digit years from 24 through 31 beside textual months as `%y`
+  instead of a second day-of-month directive.
 
 ## 0.4.0 - 2026-08-25
 
